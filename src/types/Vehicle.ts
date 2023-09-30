@@ -1,4 +1,5 @@
 export interface IVehicle {
+  isStarClicked: unknown;
   id: number;
   name: string;
   description: string;

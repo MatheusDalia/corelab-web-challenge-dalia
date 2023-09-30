@@ -4,11 +4,27 @@
   display: grid;
   padding: 1rem 2rem;
 
+  .centeredContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+
   .main {
     display: grid;
     gap: 1rem;
     width: 100%;
   }
+
+  /* Vehicles.module.scss */
+  .grid {
+    display: flex;
+    flex-wrap: wrap; /* Allow cards to wrap to the next row when needed */
+    justify-content: flex-start; /* Space items evenly in a row */
+    align-items: flex-start; /* Align items at the top of each row */
+  }
+
 
   @include tablet {
 
