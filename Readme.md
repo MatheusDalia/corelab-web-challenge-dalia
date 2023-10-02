@@ -48,8 +48,8 @@ Repositório:
 
 1. Node: ^16.15.0
 2. NPM: ^8.5.5
-3. Framework: Adonis TS ou qualquer outro framework de node que você conheça.
-4. Banco de dados: Escolha o seu, você pode até salvar na memória.
+3. Framework: Nest.js
+4. Banco de dados: PostgreSQL
 
 ### Frontend
 
