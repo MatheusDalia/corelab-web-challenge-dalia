@@ -4,7 +4,7 @@
 
 O [repositório frontend](https://github.com/MatheusDalia/corelab-web-challenge-dalia)
 
-O [repositório de backend](https://github.com/MatheusDalia/corelab-nest-dalia/)
+O [repositório de backend](https://github.com/MatheusDalia/corelab-api-challenge-dalia)
 
 ### Como rodar o frontend
 
