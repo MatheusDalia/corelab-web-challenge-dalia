@@ -12,8 +12,9 @@
   margin: 1rem;
 
   box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
-
-  cursor: pointer;
+  .star{
+    cursor: pointer;
+  }
   .header {
     padding-left: 1.4rem;
     padding-right: 1.4rem;
@@ -43,6 +44,15 @@
     border-bottom: 2px solid #ddd; /* Add a bottom border */
     margin-bottom: 8px; /* Adjust margin as needed */
     width: 100%; /* Make it stretch to the width of the container */
+  }
+
+  .buttonDiv {
+    display: flex;
+    cursor:pointer;
+    margin-top:50px;
+    margin-left:250px;
+    padding-right: 1.4rem;
+    padding-bottom: 1.4rem;
   }
 
   .editText {

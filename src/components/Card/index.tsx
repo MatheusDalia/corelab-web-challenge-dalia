@@ -1,27 +1,44 @@
-import React, { ReactNode, useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Card.module.scss";
+import { updateCardFavoriteStatus, deleteTodo, updateCardColor, updateCardText} from "../../lib/api"
 
 interface ICard {
+  id: string;
   title: string;
   text: string;
-  children: ReactNode;
+  favorite: boolean;
+  color: string;
+  onDataChange: () => void;
 }
 
 const Card = (props: ICard) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isEditing, setIsEditing] = useState(false); // Step 1: State for edit mode
   const [editedText, setEditedText] = useState(props.text); // Step 1: State for edited text
+  const [editedTitle, setEditedTitle] = useState(props.title); // Step 1: State for edited title
   const [isStarClicked, setIsStarClicked] = useState(false);
   const [isColorMenuVisible, setColorMenuVisible] = useState(false);
   const [selectedColor, setSelectedColor] = useState("");
+  const [isFavorite, setIsFavorite] = useState(props.favorite); // Initialize with props.favorite
 
   const handleBucketClick = () => {
     setColorMenuVisible(!isColorMenuVisible);
   };
 
-  const handleColorClick = (color: string) => {
-    setSelectedColor(color);
-    setColorMenuVisible(false);
+  const handleColorChange = async (color: string) => {
+    try {
+      // Update the local state with the selected color
+      setSelectedColor(color);
+      setColorMenuVisible(false);
+      // Call the updateCardColor function to update the color on the server
+      console.log("Color:", color)
+      const updateColor = await updateCardColor(props.id, color);
+      console.log(updateColor)
+      props.onDataChange();
+      // Handle API response and updated data as needed
+    } catch (error) {
+      console.error("Error updating card color:", error);
+    }
   };
 
   // Step 2: Event handler to toggle edit mode
@@ -29,23 +46,45 @@ const Card = (props: ICard) => {
     setIsEditing(!isEditing);
   };
 
-  // Step 3: Event handler to save changes
-  const handleSaveClick = () => {
-    props.text = editedText; // You may need to update the parent component's state here
-    setIsEditing(false);
-  };
-  
 
 
   // Step 2: Event handler to toggle visibility
-  const handleDeleteClick = () => {
-    console.log("Delete icon clicked"); // Add this line for testing
-    setIsVisible(false);
+  const handleDeleteClick = async (cardId: string) => {
+    try {
+      await deleteTodo(cardId);
+      props.onDataChange();
+      // Handle success or update your component state as needed after the Todo is deleted.
+    } catch (error) {
+      console.error("Error deleting Todo:", error);
+    }
   };
 
-  const handleStarClick = () => {
-    setIsStarClicked(!isStarClicked); // Step 2: Toggle star click
+  const handleStarClick = async () => {
+    try {
+      // Toggle the isFavorite state locally
+      const updatedIsFavorite = !isFavorite;
+
+      // Update the favorite status in the component's state
+      setIsFavorite(updatedIsFavorite);
+
+      // Make a PUT request to update the favorite status on the server
+      const response = await updateCardFavoriteStatus(props.id, updatedIsFavorite);
+
+      console.log("API Response:", response);
+      props.onDataChange();
+      // Handle API response and updated data as needed
+    } catch (error) {
+      console.error("Error updating card favorite status:", error);
+    }
   };
+
+  useEffect(() => {
+    if (!isEditing) {
+      handleUpdateText(); // Automatically save text when exiting edit mode
+    }
+  }, [isEditing]); // Watch for changes in the isEditing state
+
+  
 
   const colorOptions = [
     "#BAE2FF",
@@ -64,15 +103,33 @@ const Card = (props: ICard) => {
   ];
 
   const cardStyle = {
-    backgroundColor: selectedColor,
+    backgroundColor: props.color,
   };
 
-  return isVisible ? (
+  const handleUpdateText = async () => {
+    try {
+      // Call the updateCardText function to update the text on the server
+      const response = await updateCardText(props.id, editedText);
+
+      console.log("API Response:", response);
+      props.onDataChange();
+      // Handle API response and updated data as needed
+    } catch (error) {
+      console.error("Error updating card text:", error);
+    }
+
+    // Exit edit mode after updating text
+    setIsEditing(false);
+  };
+
+  
+
+  return(
     <div className={styles.Card} style={cardStyle}>
       <div className={styles.header}> 
-        <h4>{props.title}</h4>
+        <h4>{editedTitle}</h4>
 
-        {isStarClicked ? ( // Step 3: Conditionally render the desired star
+        {isFavorite === true ? ( // Step 3: Conditionally render the desired star
           <svg
             width="20"
             height="20"
@@ -113,7 +170,10 @@ const Card = (props: ICard) => {
       {isEditing ? ( // Step 2: Conditionally render input in edit mode
         <textarea
           value={editedText}
-          onChange={(e) => setEditedText(e.target.value)}
+          onChange={(e) => {
+            setEditedText(e.target.value);
+            setEditedTitle(props.title);
+          }}
           className={styles.editText}
           style = {cardStyle}
         />
@@ -159,7 +219,7 @@ const Card = (props: ICard) => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className={styles.delete} // Unique class for the second new SVG
-            onClick={handleDeleteClick}
+            onClick={() => handleDeleteClick(props.id)}
           >
             <path
               d="M13.6146 2.29924L12.2909 0.975616L7.04337 6.22319L1.7958 0.975616L0.472168 2.29924L5.71974 7.54682L0.472168 12.7944L1.7958 14.118L7.04337 8.87045L12.2909 14.118L13.6146 12.7944L8.367 7.54682L13.6146 2.29924Z"
@@ -170,19 +230,19 @@ const Card = (props: ICard) => {
       {isColorMenuVisible && (
           <div className={styles.colorMenu}>
             {colorOptions.map((color, index) => (
-              <div
-                key={index}
-                className={styles.colorOption}
-                style={{ backgroundColor: color }}
-                onClick={() => handleColorClick(color)}
-              />
-            ))}
+            <div
+              key={index}
+              className={styles.colorOption}
+              style={{ backgroundColor: color }}
+              onClick={() => handleColorChange(color)} // Step 2: Trigger color change on click
+            />
+          ))}
             {/* Add more color options */}
           </div>
           )}
-      <div className={styles.content}>{props.children}</div>
+      <div className={styles.content}></div>
     </div>
-  ) : null;
+  );
 };
 
 export default Card;

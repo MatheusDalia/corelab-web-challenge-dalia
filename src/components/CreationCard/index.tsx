@@ -1,74 +1,65 @@
 import React, { ReactNode, useState } from "react";
 import styles from "./CreationCard.module.scss";
-
+import { updateCardFavoriteStatus, createCard} from "../../lib/api"
 interface ICreationCard {
   title: string;
   text: string;
-  children: ReactNode;
+  favorite: boolean;
+  onDataChange: () => void;
 }
 
 const CreationCard = (props: ICreationCard) => {
   const [editedTitle, setEditedTitle] = useState(props.title);
-  const [isVisible, setIsVisible] = useState(true);
   const [isEditing, setIsEditing] = useState(false); // Step 1: State for edit mode
   const [editedText, setEditedText] = useState(props.text); // Step 1: State for edited text
   const [isStarClicked, setIsStarClicked] = useState(false);
-  const [isColorMenuVisible, setColorMenuVisible] = useState(false);
   const [selectedColor, setSelectedColor] = useState("");
+  const [isFavorite, setIsFavorite] = useState(props.favorite); // Initialize with props.favorite
 
-  const handleBucketClick = () => {
-    setColorMenuVisible(!isColorMenuVisible);
+  const handleStarClick = async () => {
+    try {
+      // Toggle the isFavorite state locally
+      const updatedIsFavorite = !isFavorite;
+      setIsStarClicked(!isStarClicked);
+      // Update the favorite status in the component's state
+      setIsFavorite(updatedIsFavorite);
+
+      console.log("Favorite:", isFavorite)
+      
+      // Handle API response and updated data as needed
+    } catch (error) {
+      console.error("Error create card favorite status:", error);
+    }
   };
 
-  const handleColorClick = (color: string) => {
-    setSelectedColor(color);
-    setColorMenuVisible(false);
+  const handleCreateClick = async () => {
+    try {
+      // Create a new card with default values or the necessary data
+      const newCardData = {
+        title: editedTitle,
+        text: editedText,
+        favorite: isFavorite,
+        color: "#FFFFFF", // Default color
+      };
+
+      // Call the createCard function to create the new card
+      const createdCard = await createCard(newCardData);
+
+      // Handle the created card data or update your component state as needed
+      console.log("Created Card:", createdCard);
+      props.onDataChange();
+      // You may also want to trigger a re-render or update the list of cards here
+    } catch (error) {
+      console.error("Error creating card:", error);
+    }
   };
 
-  // Step 2: Event handler to toggle edit mode
-  const handleEditClick = () => {
-    setIsEditing(!isEditing);
-  };
-
-  // Step 3: Event handler to save changes
-  const handleSaveClick = () => {
-    props.text = editedText; // You may need to update the parent component's state here
-    setIsEditing(false);
-  };
-  
-
-
-  // Step 2: Event handler to toggle visibility
-  const handleDeleteClick = () => {
-    console.log("Delete icon clicked"); // Add this line for testing
-    setIsVisible(false);
-  };
-
-  const handleStarClick = () => {
-    setIsStarClicked(!isStarClicked); // Step 2: Toggle star click
-  };
-
-  const colorOptions = [
-    "#BAE2FF",
-    "#FFCAB9",
-    "#FF5733",
-    "#9DD6FF",
-    "#FFE8AC",
-    "#B9FFDD",
-    "#ECA1FF",
-    "#DAFF8B",
-    "#FFA285",
-    "#CDCDCD",
-    "#979797",
-    "#A99A7C",
-    /* Add more color codes here */
-  ];
 
   const cardStyle = {
     backgroundColor: selectedColor,
   };
 
-  return isVisible ? (
+  return(
     <div className={styles.CreationCard} style={cardStyle}>
       <div className={styles.header}> 
           <input
@@ -125,9 +116,36 @@ const CreationCard = (props: ICreationCard) => {
         style={{ maxHeight: "200px", overflowY: "auto" }}
       />
       
-      <div className={styles.content}>{props.children}</div>
+      <div className={styles.content}></div>
+      <div className ={styles.buttonDiv}>
+      <button onClick={handleCreateClick} className={styles.createButton}>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={styles.plusIcon} // You can style the icon as needed
+        >
+          <path
+            d="M12 1V23"
+            stroke="#51646E"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M1 12H23"
+            stroke="#51646E"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      </div>
     </div>
-  ) : null;
+  );
 };
 
 export default CreationCard;

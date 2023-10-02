@@ -7,11 +7,19 @@ import SearchIcon from "../../images/search.svg";
 
 interface INavbar {
   title: string;
-  children: ReactNode;
+  onSearchChange: (searchText: string) => void;
 }
 
 const Navbar = (props: INavbar) => {
   const [search, setSearch] = useState<string>("");
+
+  // Function to handle search input changes
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchText = e.target.value;
+    setSearch(searchText);
+    props.onSearchChange(searchText); // Call the callback function with the search text
+  };
+  
   return (
     <div className={styles.Navbar}>
       <div className={styles.header}> 
@@ -25,7 +33,7 @@ const Navbar = (props: INavbar) => {
                 className={styles.searchInput}
                 placeholder="Pesquisar notas"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={handleSearchChange}
               />
             </div>  
           </div>
@@ -46,7 +54,7 @@ const Navbar = (props: INavbar) => {
         
       </div>
 
-      <div className={styles.content}>{props.children}</div>
+      <div className={styles.content}></div>
     </div>
   );
 };
