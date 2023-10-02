@@ -8,7 +8,6 @@ const HomePage = () => {
   const [todos, setTodos] = useState<ITodo[]>([]);
   const [search, setSearch] = useState<string>("");
   const [showFavorites, setShowFavorites] = useState<boolean>(false);
-
   useEffect(() => {
     const fetchTodos = async () => {
       const payload = await getTodos();
@@ -18,6 +17,8 @@ const HomePage = () => {
     fetchTodos();
   }, []);
 
+  
+
   const handleDataChange = async () => {
     // Whenever there's a data change (e.g., after POST, PUT, or GET),
     // you can re-fetch the data or update it as needed.
@@ -25,8 +26,8 @@ const HomePage = () => {
     setTodos(payload);
   };
 
-  // Filter todos based on the search text and whether they are favorites
-  const filteredTodosFav = todos.filter((todo) => {
+   // Filter todos based on the search text and whether they are favorites
+   const filteredTodosFav = todos.filter((todo) => {
     const titleMatch = todo.title.toLowerCase().includes(search.toLowerCase());
     const isFavorite = todo.favorite;
 
@@ -39,11 +40,13 @@ const HomePage = () => {
 
   const filteredTodosOut = todos.filter((todo) => {
     const titleMatch = todo.title.toLowerCase().includes(search.toLowerCase());
-    
+    const isFavorite = todo.favorite;
 
-    
-    return titleMatch;
-    
+    if (showFavorites) {
+      return titleMatch && isFavorite;
+    } else {
+      return titleMatch;
+    }
   });
 
   const favorites = filteredTodosFav.filter((todo) => todo.favorite);
@@ -55,12 +58,12 @@ const HomePage = () => {
 
   return (
     <div>
-    <Navbar title="CoreNote" onSearchChange={setSearch}/>
+    <Navbar title="CoreNote" onSearchChange={setSearch} />
     <div className={styles.Home}>
       <main className={styles.main}>
         
         <div className={styles.centeredContainer}>
-            <CreationCard title="Título" text="Criar nota..." favorite={false} onDataChange={handleDataChange} />
+            <CreationCard title="Título" text="Criar nota..." favorite={false} onDataChange={handleDataChange}  todos={todos} />
         </div>
         <div className={styles.gridCards}>
             {/* Render the favorites row only if there are favorite todos */}
@@ -71,6 +74,7 @@ const HomePage = () => {
                   
                   {favorites.map((favorite) => (
                     <Card
+                      key={favorite.id.toString()}
                       id={favorite.id.toString()}
                       title={favorite.title}
                       text={favorite.text}
@@ -88,7 +92,8 @@ const HomePage = () => {
               
               {outros.map((outro) => (
                 <Card
-                    id={outro.id.toString()}
+                  key={outro.id.toString()}
+                  id={outro.id.toString()}
                   title={outro.title}
                   text={outro.text}
                   favorite={outro.favorite}

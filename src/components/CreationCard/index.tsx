@@ -1,12 +1,17 @@
 import React, { ReactNode, useState } from "react";
 import styles from "./CreationCard.module.scss";
 import { updateCardFavoriteStatus, createCard} from "../../lib/api"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ITodo } from "../../types/Todo";
 interface ICreationCard {
   title: string;
   text: string;
   favorite: boolean;
   onDataChange: () => void;
+  todos: ITodo[]; // Add the todos prop
 }
+
 
 const CreationCard = (props: ICreationCard) => {
   const [editedTitle, setEditedTitle] = useState(props.title);
@@ -15,7 +20,7 @@ const CreationCard = (props: ICreationCard) => {
   const [isStarClicked, setIsStarClicked] = useState(false);
   const [selectedColor, setSelectedColor] = useState("");
   const [isFavorite, setIsFavorite] = useState(props.favorite); // Initialize with props.favorite
-
+  
   const handleStarClick = async () => {
     try {
       // Toggle the isFavorite state locally
@@ -35,6 +40,18 @@ const CreationCard = (props: ICreationCard) => {
   const handleCreateClick = async () => {
     try {
       // Create a new card with default values or the necessary data
+      const isTitleExists = props.todos.some((todo) => todo.title === editedTitle);
+
+      if (isTitleExists) {
+        console.log("Cade o toast?")
+        // Show a toast message indicating that the title already exists
+        toast.error("A card with this title already exists!", {
+          position: "top-right",
+          autoClose: 3000, // Auto close the toast after 3 seconds
+        });
+        return;
+      }
+      
       const newCardData = {
         title: editedTitle,
         text: editedText,
@@ -61,6 +78,7 @@ const CreationCard = (props: ICreationCard) => {
 
   return(
     <div className={styles.CreationCard} style={cardStyle}>
+      <ToastContainer />
       <div className={styles.header}> 
           <input
             type="text"

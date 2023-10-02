@@ -13,7 +13,6 @@ interface INavbar {
 const Navbar = (props: INavbar) => {
   const [search, setSearch] = useState<string>("");
 
-  // Function to handle search input changes
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchText = e.target.value;
     setSearch(searchText);
@@ -33,7 +32,10 @@ const Navbar = (props: INavbar) => {
                 className={styles.searchInput}
                 placeholder="Pesquisar notas"
                 value={search}
-                onChange={handleSearchChange}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handleSearchChange(e);
+                }}
               />
             </div>  
           </div>
